@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12342a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grace's Phone">
+<title>Grace's Phone</title>
+<style>
+:root{
+  --fs:28px;
+  --g:#1f4d3f; --g2:#2e6b57; --gl:#e3efe8;
+  --och:#d4a12a; --ochd:#8a6510; --ochl:#fbf0d4;
+  --cream:#f7f1e3; --card:#fffdf8; --ink:#1d2a26; --mute:#5b6b65;
+  --ter:#c8643b; --ok:#2f8f5b; --okl:#dff2e6; --bad:#b8402f; --badl:#f8e1dc;
+  --line:#ddd3bf;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:var(--fs)}
+body{margin:0;overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%;background:#0d1412;color:var(--ink);font-family:"Trebuchet MS","Segoe UI",Carlito,system-ui,sans-serif;line-height:1.35;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.phone{position:relative;width:100vw;height:100vh;height:100dvh;max-width:440px;margin:0 auto;overflow:hidden;background:#12342a;display:flex;flex-direction:column}
+@media (min-width:620px){.phone{height:min(920px,96vh);margin-top:2vh;border-radius:46px;border:12px solid #050807;box-shadow:0 30px 80px rgba(0,0,0,.6)}}
+
+/* status bar */
+.sbar{height:48px;flex:0 0 48px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:19px;font-weight:700;color:#fff;background:transparent;position:absolute;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:20}
+.sbtns{display:flex;gap:8px}
+.sbar.dark{color:var(--ink)}
+.sbar .aa{min-width:58px;min-height:40px;border-radius:20px;background:rgba(255,255,255,.22);font-size:19px;font-weight:700}
+.sbar.dark .aa{background:rgba(0,0,0,.08)}
+.sbar .icons{letter-spacing:2px}
+#scr{position:absolute;inset:0;top:env(safe-area-inset-top,0px);display:flex;flex-direction:column;background:var(--cream)}
+#scr.wall{background:radial-gradient(120% 70% at 80% 0%,#e9b949 0%,#3f8a73 38%,#1f4d3f 75%,#12342a 100%)}
+
+/* wallpaper and rain */
+.wall{background:radial-gradient(120% 70% at 80% 0%,#e9b949 0%,#3f8a73 38%,#1f4d3f 75%,#12342a 100%);color:#fff}
+.rain{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.rain i{position:absolute;top:-12%;width:2px;height:9%;background:linear-gradient(transparent,rgba(220,235,240,.55));animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(130vh)}}
+
+/* lock */
+.lock{flex:1;display:flex;flex-direction:column;align-items:center;padding:64px 20px 20px;position:relative;z-index:1;overflow-y:auto}
+.lock .date{font-size:.75rem;opacity:.9;margin-top:6px}
+.lock .big{font-size:3.2rem;font-weight:700;line-height:1;margin-top:4px;font-variant-numeric:tabular-nums}
+.notif{width:100%;background:rgba(255,255,255,.16);border-radius:22px;padding:12px 16px;margin-top:16px;font-size:.75rem;backdrop-filter:blur(6px)}
+.notif b{display:block;font-size:.7rem;opacity:.85}
+.story{width:100%;background:rgba(0,0,0,.25);border-radius:22px;padding:14px 18px;margin-top:12px;font-size:.8rem}
+.dots{display:flex;gap:16px;margin:18px 0 6px}
+.dots span{width:22px;height:22px;border-radius:50%;border:3px solid #fff}
+.dots span.on{background:#fff}
+.dots.shake{animation:shake .4s}
+.pin-hint{font-size:.72rem;text-align:center;min-height:1.2em;color:var(--ochl)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:340px;margin-top:10px}
+.pad button{aspect-ratio:1.35;border-radius:50px;background:rgba(255,255,255,.18);font-size:1.15rem;font-weight:700;color:#fff;min-height:64px}
+.pad button:active{background:rgba(255,255,255,.4)}
+.pad .blank{visibility:hidden}
+
+/* home */
+.home{flex:1;display:flex;flex-direction:column;padding:56px 16px 16px;position:relative;z-index:1;overflow-y:auto}
+.prog{background:rgba(0,0,0,.28);border-radius:22px;padding:12px 16px}
+.prog .row{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;font-weight:700;gap:8px}
+.bar{height:14px;border-radius:7px;background:rgba(255,255,255,.2);margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--och);border-radius:7px;transition:width .6s}
+.chip{display:inline-block;background:var(--och);color:#2b1f00;border-radius:14px;padding:2px 10px;font-size:.7rem;font-weight:700}
+.mission{margin-top:12px;background:var(--card);color:var(--ink);border-radius:22px;padding:12px 16px;font-size:.8rem;border-left:8px solid var(--och)}
+.mission b{color:var(--g)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px;margin-top:18px}
+.app{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;min-height:64px}
+.app .ic{width:min(3rem,25vw);height:min(3rem,25vw);border-radius:26%;display:grid;place-items:center;font-size:min(1.7rem,14vw);box-shadow:0 6px 14px rgba(0,0,0,.3);position:relative}
+.app .lb{font-size:max(.68rem,19px);font-weight:700;text-align:center;line-height:1.1;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.app .sc{font-size:19px;background:rgba(0,0,0,.35);border-radius:10px;padding:0 8px}
+.app.locked .ic{filter:grayscale(.85) brightness(.55)}
+.app .lockb{position:absolute;right:-6px;bottom:-6px;width:44%;height:44%;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:.8rem;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.app .tick{position:absolute;right:-6px;top:-6px;width:40%;height:40%;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:.7rem;font-weight:700;border:3px solid #fff}
+.app.next .ic{animation:glow 1.6s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 8px rgba(212,161,42,.55),0 6px 14px rgba(0,0,0,.3)}}
+.reset{margin-top:auto;padding-top:22px;text-align:center}
+.reset button{font-size:.65rem;min-height:48px;padding:0 16px;border-radius:24px;background:rgba(255,255,255,.12);color:#fff}
+.warn{margin-top:10px;background:var(--ochl);color:#4a3600;border-radius:16px;padding:8px 12px;font-size:.65rem}
+
+/* app screen */
+.appbar{flex:0 0 auto;padding:52px 10px 10px;display:flex;align-items:center;gap:8px;color:#fff}
+.appbar .back{min-height:56px;padding:0 14px;border-radius:28px;background:rgba(255,255,255,.18);font-weight:700;font-size:.8rem}
+.appbar h1{margin:0;font-size:1rem;flex:1;text-align:right;padding-right:6px}
+.ctx{flex:1 1 0;min-height:0;overflow-y:auto;padding:14px;background:var(--cream);-webkit-overflow-scrolling:touch}
+.qp{flex:1 1 0;min-height:0;overflow-y:auto;background:var(--card);border-top:3px solid var(--line);padding:12px 14px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 20px rgba(0,0,0,.08)}
+.qnum{font-size:max(.65rem,19px);color:var(--mute);font-weight:700}
+.q{font-size:1rem;font-weight:700;margin:4px 0 10px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{width:100%;min-height:64px;border-radius:18px;border:3px solid var(--line);background:#fff;font-size:1rem;text-align:left;padding:10px 16px;font-family:Georgia,"Times New Roman",serif}
+.opt:active{transform:scale(.98)}
+.opt.right{background:var(--okl);border-color:var(--ok)}
+.opt.wrong{background:var(--badl);border-color:var(--bad);opacity:.75;animation:shake .4s}
+.fb{font-size:.8rem;margin-top:10px;min-height:1em}
+.fb.ok{color:var(--ok);font-weight:700}
+.fb.no{color:var(--bad)}
+.go{width:100%;min-height:64px;border-radius:32px;background:var(--g);color:#fff;font-weight:700;font-size:1rem;margin-top:12px}
+.go.och{background:var(--och);color:#2b1f00}
+.go[disabled]{opacity:.4}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+.intro{background:var(--card);border-radius:22px;padding:16px;font-size:.9rem;border-left:8px solid var(--och);font-family:Georgia,"Times New Roman",serif}
+.intro p{margin:0 0 10px}
+.intro .when{font-family:"Trebuchet MS",sans-serif;font-weight:700;color:var(--g);font-size:.75rem}
+
+/* tile builder */
+.tray{display:flex;flex-wrap:wrap;gap:10px}
+.tile{min-height:60px;padding:8px 16px;border-radius:16px;background:var(--ochl);border:3px solid var(--och);font-weight:700;font-size:.9rem}
+.tile.used{visibility:hidden}
+.small-btns{display:flex;gap:10px;margin-top:10px}
+.small-btns button{flex:1;min-height:60px;border-radius:30px;font-weight:700;font-size:.85rem;background:var(--gl);color:var(--g)}
+
+/* maps app */
+.msearch{background:#fff;border-radius:30px;padding:10px 16px;min-height:64px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;box-shadow:0 3px 10px rgba(0,0,0,.12);font-size:.85rem}
+.msearch .ph{color:var(--mute)}
+.msearch .pt{background:var(--gl);border:2px solid var(--g2);color:var(--g);border-radius:12px;padding:4px 10px;font-weight:700;min-height:48px;font-size:.85rem}
+.msearch .cur{width:3px;height:1.1em;background:var(--g);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.recent{margin-top:12px;background:#fff;border-radius:18px;padding:10px 14px;font-size:.75rem;color:var(--mute)}
+.recent b{color:var(--ink)}
+.map{position:relative;height:9rem;min-height:230px;margin-top:12px;border-radius:20px;overflow:hidden;background:#e7eedd;background-image:linear-gradient(#dfe8d3 2px,transparent 2px),linear-gradient(90deg,#dfe8d3 2px,transparent 2px);background-size:40px 40px}
+.road{position:absolute;background:#fff;box-shadow:0 0 0 2px #cfd6c4}
+.road.v{top:0;bottom:0;width:30px}
+.road.h{left:0;right:0;height:26px}
+.road span{position:absolute;font-size:19px;font-weight:700;color:#6b746a;white-space:nowrap}
+.road.v span{transform:rotate(-90deg);transform-origin:left top;left:4px;top:70%}
+.road.h span{left:8px;top:1px}
+.park{position:absolute;left:62%;top:6%;width:30%;height:26%;background:#bfdcae;border-radius:14px}
+.mpin{position:absolute;font-size:1.4rem;transform:translate(-50%,-90%)}
+.mstop{position:absolute;font-size:1rem;transform:translate(-50%,-50%)}
+.zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.zoom span.z{width:44px;height:44px;background:#fff;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:26px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.locb{position:absolute;right:10px;bottom:10px;width:48px;height:48px;background:#fff;border-radius:50%;display:grid;place-items:center;font-size:26px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.tag{display:inline-grid;place-items:center;min-width:34px;height:34px;border-radius:50%;background:var(--och);color:#fff;font-weight:700;font-size:19px;font-family:"Trebuchet MS",sans-serif;flex:0 0 auto}
+.map .tag{position:absolute}
+.mcard{margin-top:12px;background:#fff;border-radius:20px;padding:12px 14px;font-size:.8rem;display:flex;gap:10px}
+.mcard small{display:block;color:var(--mute);font-size:max(.68rem,19px);margin-top:4px}
+.mbtns{display:flex;gap:10px;margin-top:10px}
+.mbtns span.b{flex:1;display:flex;align-items:center;gap:8px;justify-content:center;background:var(--g);color:#fff;border-radius:26px;min-height:56px;font-weight:700;font-size:.8rem}
+.mbtns span.b.alt{background:#fff;color:var(--g);border:2px solid var(--g)}
+
+/* messages */
+.thread{display:flex;flex-direction:column;gap:10px}
+.who{display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:8px 12px;margin-bottom:6px}
+.av{width:52px;height:52px;border-radius:50%;background:var(--ter);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.9rem;flex:0 0 auto}
+.who b{font-size:.9rem}
+.who small{display:block;color:var(--mute);font-size:max(.62rem,19px)}
+.bub{max-width:86%;padding:10px 14px;border-radius:22px;font-size:.85rem;font-family:Georgia,"Times New Roman",serif}
+.bub.them{background:#fff;align-self:flex-start;border-bottom-left-radius:6px}
+.bub.me{background:#3b8a5e;color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+.tstamp{align-self:center;font-size:19px;color:var(--mute)}
+.reveal .bub{animation:pop .35s both}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}}
+
+/* timetable */
+.nowbox{background:var(--g);color:#fff;border-radius:18px;padding:10px 14px;font-size:.8rem}
+.nowbox b{color:#ffe7a8}
+.ttwrap{margin-top:12px;background:#fff;border-radius:18px;overflow:hidden;border:2px solid var(--line)}
+.tthead{background:var(--och);color:#2b1f00;padding:10px 14px;font-weight:700;font-size:.85rem}
+.tthead small{display:block;font-weight:400;font-size:max(.62rem,19px)}
+.ttscroll{overflow-x:auto}
+table.tt{border-collapse:collapse;font-size:max(.7rem,20px);min-width:100%}
+.tt th,.tt td{padding:10px 10px;border-bottom:1px solid #eee3cc;white-space:nowrap;text-align:center;font-variant-numeric:tabular-nums}
+.tt th{background:#fbf6ea;font-size:max(.62rem,19px)}
+.tt th.day{background:var(--gl);color:var(--g)}
+.tt td:first-child,.tt th:first-child{position:sticky;left:0;background:#fff;text-align:left;font-weight:700;white-space:normal;min-width:7em;box-shadow:2px 0 0 #eee3cc}
+.tt th:first-child{background:#fbf6ea}
+.ttnote{padding:10px 14px;font-weight:700;color:var(--ter);font-size:max(.7rem,20px)}
+.practice{font-size:max(.62rem,19px);color:var(--mute);margin-top:10px;text-align:center}
+
+/* overlay */
+.ov{position:absolute;inset:0;z-index:40;background:rgba(10,25,20,.7);display:flex;align-items:center;justify-content:center;padding:18px}
+.ovc{background:var(--card);border-radius:28px;padding:22px 18px;width:100%;text-align:center;animation:pop .4s both;max-height:90%;overflow-y:auto}
+.ovc .bigi{font-size:2.4rem}
+.ovc h2{margin:6px 0;color:var(--g);font-size:1.15rem}
+.ovc p{font-size:.85rem;margin:8px 0;font-family:Georgia,"Times New Roman",serif}
+.toast{position:absolute;left:50%;top:60px;transform:translateX(-50%);z-index:50;background:#111;color:#fff;padding:10px 18px;border-radius:24px;font-size:.75rem;animation:pop .3s both;max-width:90%;text-align:center}
+
+/* voice */
+.vcard{background:#fff;border-radius:22px;padding:16px;text-align:center}
+.vcard .mic{width:2.6rem;height:2.6rem;border-radius:50%;background:linear-gradient(145deg,#d87850,#a14a27);color:#fff;display:grid;place-items:center;font-size:1.3rem;margin:0 auto}
+.wave{display:flex;gap:5px;justify-content:center;align-items:center;height:70px;margin:12px 0}
+.wave i{width:8px;border-radius:4px;background:var(--ter);animation:wv 1s ease-in-out infinite alternate}
+@keyframes wv{from{transform:scaleY(.35)}}
+.tip{background:var(--ochl);border-radius:18px;padding:10px 14px;margin-top:12px;font-size:.8rem;text-align:left}
+.tip b{color:var(--ochd)}
+/* gap chat */
+.gap{display:inline-block;min-width:4.5em;border-bottom:3px dashed currentColor;margin:0 4px}
+/* notes */
+.paper{background:#fffbe9;border-radius:18px;padding:14px 16px;background-image:repeating-linear-gradient(#fffbe9 0,#fffbe9 calc(1.6em - 2px),#eadfb8 calc(1.6em - 2px),#eadfb8 1.6em);line-height:1.6em;font-family:Georgia,"Times New Roman",serif;font-size:.85rem}
+.paper h3{margin:0;font-family:"Trebuchet MS",sans-serif;color:var(--ochd);font-size:.95rem;line-height:1.6em}
+.paper .done{color:var(--ink)}
+.paper .done b{color:var(--ok)}
+.paper .now{color:var(--mute)}
+.rule{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,5.5em),1fr));gap:8px;margin-top:12px}
+.rule div{min-width:0;overflow-wrap:break-word}
+.rule div{background:#fff;border-radius:16px;padding:10px 12px;font-size:max(.68rem,19px)}
+.rule b{display:block;color:var(--g);font-size:max(.72rem,20px)}
+/* cards */
+.ocard{border-radius:22px;padding:16px;color:#fff;background:linear-gradient(135deg,#2b2b2b,#4a4a4a);box-shadow:0 8px 18px rgba(0,0,0,.25)}
+.ocard .ot{font-weight:700;font-size:1rem}
+.ocard .bal{font-size:1.4rem;font-weight:700;margin-top:6px}
+.ocard small{display:block;opacity:.8;font-size:max(.65rem,19px)}
+.oform{background:#fff;border-radius:20px;padding:12px 14px;margin-top:12px}
+.oform h4{margin:0 0 8px;color:#28506b;font-size:.85rem}
+.lowbal{color:#ffd27a;font-weight:700}
+/* photos */
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:10px}
+.gal span{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-size:1.2rem;background:#d9e3dc}
+.gal span.sel{outline:4px solid var(--och)}
+.leaf{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.15);transform:rotate(-.6deg)}
+.leaf .lh{background:#1f4d6b;color:#fff;padding:12px 14px}
+.leaf .lh b{display:block;font-size:1.05rem;letter-spacing:1px}
+.leaf .lh small{font-size:max(.62rem,19px);opacity:.85}
+.leaf .lb2{padding:10px 14px;font-size:max(.72rem,20px);font-family:Georgia,"Times New Roman",serif}
+.leaf .lb2 p{margin:0 0 8px}
+.leaf .lb2 b{font-family:"Trebuchet MS",sans-serif;color:#1f4d6b}
+.leaf table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:clamp(19px,.72rem,22px);margin-bottom:6px}
+.leaf th,.leaf td{overflow-wrap:break-word}
+.leaf th{background:#e6eef3;color:#1f4d6b;padding:8px;text-align:left}
+.leaf td{padding:8px;border-bottom:1px solid #e6eef3}
+/* polls */
+.poll{background:#fff;border-radius:20px;padding:14px}
+.poll h4{margin:0 0 10px;font-size:.9rem;color:#6a3f7d}
+.prow{display:grid;grid-template-columns:5em 1fr 1.6em;align-items:center;gap:8px;margin:8px 0;font-size:max(.72rem,20px);font-weight:700}
+.prow .pb{height:22px;border-radius:11px;background:#efe6f3;overflow:hidden}
+.prow .pb i{display:block;height:100%;background:#9a6aac;border-radius:11px}
+.stmt{background:#fff;border-radius:18px;padding:12px 14px;margin-top:12px;font-family:Georgia,"Times New Roman",serif;font-size:.9rem;border-left:8px solid #9a6aac}
+.stmt b{font-family:"Trebuchet MS",sans-serif;color:#6a3f7d;display:block;font-size:max(.7rem,20px)}
+/* class */
+.room{background:#fff;border-radius:20px;padding:14px;text-align:center}
+.room .board{background:#2c4a3e;color:#fff;border-radius:12px;padding:10px;font-size:max(.72rem,20px);border:6px solid #b98a52}
+/* win */
+.win{flex:1;display:flex;flex-direction:column;align-items:center;padding:60px 18px 20px;overflow-y:auto;position:relative;z-index:1;text-align:center}
+.win h2{font-size:1.4rem;margin:6px 0;color:#ffe7a8}
+.win .trophy{font-size:3.4rem;animation:bounce 1.2s ease-in-out infinite}
+@keyframes bounce{50%{transform:translateY(-10px) rotate(-4deg)}}
+.win .card2{background:var(--card);color:var(--ink);border-radius:22px;padding:14px;width:100%;margin-top:12px;text-align:left}
+.win .total{font-size:1.1rem;font-weight:700;color:var(--g);text-align:center}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line);font-size:.8rem}
+.srow:last-child{border-bottom:0}
+.stars{color:var(--och);letter-spacing:2px}
+.conf{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.conf i{position:absolute;top:-5%;width:12px;height:18px;border-radius:3px;animation:cf linear infinite}
+@keyframes cf{to{transform:translateY(115vh) rotate(720deg)}}
+/* welcome back + tips */
+.wb{background:var(--och);color:#2b1f00;border-radius:22px;padding:12px 16px;margin-bottom:12px;font-size:.8rem;box-shadow:0 6px 16px rgba(0,0,0,.3);animation:pop .4s both}
+.wb .wbt{font-weight:700;font-size:.85rem;letter-spacing:1px}
+.wb button{margin-top:8px;min-height:52px;padding:0 26px;border-radius:26px;background:#2b1f00;color:#fff;font-weight:700;font-size:.8rem}
+.tipb{background:var(--card)}
+.app .sc.keep{background:var(--och);color:#2b1f00;font-weight:700;text-shadow:none}
+.home,.lock,.win{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))!important}
+.rotate{display:none;position:fixed;inset:0;z-index:100;background:#12342a;color:#fff;align-items:center;justify-content:center;text-align:center;font-size:28px;font-weight:700}
+.rotate div{font-size:28px;line-height:1.5}
+@media (orientation:landscape) and (max-height:520px){.rotate{display:flex}}
+:fullscreen .phone,:-webkit-full-screen .phone{max-width:none}
+/* lesson 2 extras */
+.sun{position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,170,.75),rgba(255,214,110,0) 70%);animation:sunp 4s ease-in-out infinite}
+@keyframes sunp{50%{transform:scale(1.08)}}
+.web{background:#fff;border-radius:18px;overflow:hidden;border:2px solid var(--line)}
+.wurl{background:#eef1f4;color:var(--mute);font-size:19px;padding:8px 12px}
+.whead{background:#2a6f8f;color:#fff;padding:10px 12px;font-size:.85rem}
+.wsearch{display:flex;align-items:center;gap:8px;background:#fff;color:var(--mute);border-radius:22px;padding:6px 10px;margin-top:8px;font-size:max(.7rem,20px)}
+.wfil{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid #eef1f4}
+.ch{background:#e6f1f6;color:#2a6f8f;border-radius:14px;padding:4px 10px;font-size:max(.62rem,19px);font-weight:700}
+.ch.dd{background:#fff;border:2px solid #2a6f8f}
+.ev{padding:10px 12px;border-bottom:1px solid #eef1f4}
+.evt{display:flex;gap:8px;align-items:center;font-size:.8rem}
+.evd{font-size:max(.68rem,19px);color:var(--ink);margin:4px 0 6px;font-family:Georgia,"Times New Roman",serif}
+.evb{display:flex;flex-wrap:wrap;gap:6px}
+.wb2{display:inline-flex;align-items:center;gap:6px;border:2px solid #2a6f8f;color:#2a6f8f;border-radius:16px;padding:3px 10px;font-size:max(.62rem,19px);font-weight:700}
+.wb2.pri{background:#2a6f8f;color:#fff}
+.cmap{display:grid;grid-template-columns:1fr 1fr 30px 1fr 1fr;margin-top:12px;border-radius:18px;overflow:hidden;background:#e7eedd;border:2px solid #cfd6c4}
+.cmap>*{min-width:0}
+.cmap .mb{min-height:62px;font-size:19px!important;hyphens:manual;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 1px;text-align:center;font-size:max(.55rem,19px);font-weight:700;color:#3d4a43;background:#eef3e6;border:1px solid #dfe8d3;line-height:1.1}
+.cmap .mb.pk{background:#bfdcae}
+.cmap .mtop{grid-column:1 / -1;text-align:center;font-size:19px;font-weight:700;color:#6b746a;background:#fff;padding:4px 0;border-bottom:2px solid #cfd6c4}
+.cmap .mb.you{background:var(--ochl);color:#6b4b00}
+.cmap .mr{background:#fff;box-shadow:inset 2px 0 0 #cfd6c4,inset -2px 0 0 #cfd6c4;position:relative}
+.cmap .mr span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);font-size:19px;font-weight:700;color:#6b746a;white-space:nowrap}
+.cmap .ms{grid-column:1 / -1;background:#fff;height:34px;display:flex;align-items:center;padding-left:10px;box-shadow:inset 0 2px 0 #cfd6c4,inset 0 -2px 0 #cfd6c4}
+.cmap .ms span{font-size:19px;font-weight:700;color:#6b746a}
+.mail{background:#fff;border-radius:18px;padding:10px 14px}
+.mrow{border-bottom:1px solid #eef1f4;padding:6px 0;font-size:.8rem}
+.mbody{display:block!important;box-shadow:none!important;padding:8px 0!important;min-height:120px}
+.mbody .pt{display:block;margin:6px 0;text-align:left;font-family:Georgia,"Times New Roman",serif;font-weight:400!important}
+.mbody2{padding:10px 0;font-family:Georgia,"Times New Roman",serif;font-size:.8rem;line-height:1.45}
+.tray.long .tile{width:100%;text-align:left;font-family:Georgia,"Times New Roman",serif;font-weight:400;font-size:.8rem}
+.bk{background:#fff;border-radius:18px;padding:12px 14px}
+.bkh{font-weight:700;color:#b04a5c;font-size:.9rem;margin-bottom:6px}
+.bkrow{padding:10px 0;border-bottom:1px solid #f3e6e9;font-size:.8rem}
+.qp.qp-start{flex:0 0 auto}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rain{display:none}}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="sbar" id="sbar"><span id="clock">8:30</span><span class="sbtns"><button class="aa" data-act="size" aria-label="Change text size">Aa</button><button class="aa" data-act="fs" id="fsb" aria-label="Full screen" hidden>⛶</button></span><span class="icons">▮▮▮ 🔋</span></div>
+  <div id="scr"></div>
+</div>
+<div class="rotate" aria-hidden="true"><div>📱<br>Please turn your phone upright.</div></div>
+<script>
+(function(){
+"use strict";
+
+/* ===================== 1. CONTENT ===================== */
+var APPS=[
+ {n:"Messages",i:"💬",c:"#5cc77a,#2e9a4f"},
+ {n:"Photos",i:"🖼️",c:"#8a9fc8,#55699a"},
+ {n:"What's On",i:"🌐",c:"#4f9fc0,#2a6f8f"},
+ {n:"Voice",i:"🎙️",c:"#d87850,#a14a27"},
+ {n:"Notes",i:"📝",c:"#f2d36b,#cfa62e"},
+ {n:"Health",i:"🩺",c:"#e07a8a,#b04a5c"},
+ {n:"Aussie Talk",i:"🦘",c:"#d9ad3c,#a87a0c"},
+ {n:"Maps",i:"🗺️",c:"#4a9a76,#2b6a4f"},
+ {n:"Mail",i:"✉️",c:"#7a8fb8,#4f6390"},
+ {n:"Library",i:"📚",c:"#2e6b57,#12342a"}
+];
+var SEEN_CHAT=false;
+
+/* ---------- 1 Messages: Scarlett's texts ---------- */
+var CHAT=[
+ ["t","8:29 am"],
+ ["s","Morning, Grace! Where are you off to today?"],
+ ["a","Hi Scarlett! I want to try aqua fitness at the pool. My friend goes every week and says it's worth it."],
+ ["s","Good on you. Give it a go!"],
+ ["s","I go to the library on Ben Boyd Road on Thursdays. There's a free English conversation group there."],
+ ["a","Oh, really? Is it good?"],
+ ["s","Yeah, it's great. I went for the first time last week. I was nervous, but everyone was really friendly."],
+ ["s","It was packed! There were about twenty people."],
+ ["a","Wow. What did you do there?"],
+ ["s","We talked in small groups, and then we played a word game. A volunteer helped me with my pronunciation, too."],
+ ["a","That sounds great. When is it on?"],
+ ["s","Every Thursday, from ten till twelve. You don't need to book. You just pop in."],
+ ["a","I'm keen! Maybe next week."]
+];
+function chatScreen(){
+ var h='<div class="who"><div class="av">S</div><div><b>Scarlett</b><small>Neighbour</small></div></div><div class="thread'+(SEEN_CHAT?'':' reveal')+'">';
+ CHAT.forEach(function(m,i){
+  if(m[0]==="t") h+='<div class="tstamp">'+m[1]+'</div>';
+  else h+='<div class="bub '+(m[0]==="a"?"me":"them")+'" style="animation-delay:'+(i*0.16)+'s">'+m[1]+'</div>';
+ });
+ SEEN_CHAT=true;
+ return h+'</div>';
+}
+
+/* ---------- 2 Photos: the pool notice ---------- */
+function poolNotice(){
+ return '<div class="gal"><span class="sel">🏊</span><span>🌳</span><span>☕</span></div>'+
+  '<div class="leaf"><div class="lh"><b>BAYVIEW AQUATIC CENTRE</b><small>Ben Boyd Road, next to Forsyth Park, Neutral Bay · (02) 5550 3388</small></div><div class="lb2">'+
+  '<p><b>Opening dates and hours</b><br>Outdoor pool: September to April only. Indoor pool: open all year. Both pools: every day, 6 am to 7 pm.</p>'+
+  '<p><b>Classes</b><br>Aqua fitness: Mon, Wed and Fri at 9 am, no booking.<br>Adult Learn to Swim: Saturdays at 8 am, 8-week course, book online.</p>'+
+  '<p><b>Entry</b><br>Adult $8 · Concession $5 · Children under 3 free</p>'+
+  '</div></div><div class="practice">The aquatic centre is for practice. The streets and the park are real.</div>';
+}
+
+/* ---------- 3 What's On website ---------- */
+function webScreen(){
+ var ev=function(tag,t,d,btns){ return '<div class="ev"><div class="evt">'+(tag?'<span class="tag">'+tag+'</span>':'')+'<b>'+t+'</b></div><div class="evd">'+d+'</div><div class="evb">'+btns+'</div></div>'; };
+ return '<div class="web"><div class="wurl">🔒 whatson.example · practice website</div>'+
+  '<div class="whead"><b>What\'s on near you</b><div class="wsearch"><span class="tag">A</span>🔍 Search events ...</div></div>'+
+  '<div class="wfil"><span class="tag">B</span><span class="ch">Sport</span><span class="ch">Library</span><span class="ch">Family</span><span class="ch">Seniors</span></div>'+
+  '<div class="wfil"><span class="tag">C</span><span class="ch dd">This week ▾</span></div>'+
+  ev("D","Neutral Bay Walking Group","Tuesdays 8 am · Meet at the Forsyth Park gates on Ben Boyd Road · Free · No booking",'<span class="wb2"><span class="tag">F</span>Add to calendar</span><span class="wb2"><span class="tag">G</span>Get directions</span>')+
+  ev("","Tai Chi in the Park","Saturdays 7:30 am · Forsyth Park · $5 · Bookings essential",'<span class="wb2 pri"><span class="tag">E</span>Book now</span><span class="wb2">Add to calendar</span><span class="wb2">Get directions</span>')+
+  ev("","Tech Help for Seniors","Mondays 2 pm · Bayview Community Library · Free · Book a 30-minute session",'<span class="wb2 pri">Book now</span><span class="wb2">Add to calendar</span><span class="wb2">Get directions</span>')+
+  '</div>';
+}
+
+/* ---------- 4 Voice ---------- */
+function voiceScreen(){
+ var w=''; for(var i=0;i<18;i++) w+='<i style="height:'+(20+((i*37)%50))+'px;animation-delay:'+(i*0.07).toFixed(2)+'s"></i>';
+ return '<div class="vcard"><div class="mic">🎙️</div><div class="wave">'+w+'</div><b>Say it clearly</b></div>'+
+  '<div class="tip"><b>Strong syllable</b><br>Long words have one strong syllable. It\'s louder and longer. In this app it\'s in CAPITALS.</div>'+
+  '<div class="tip"><b>Numbers and emails</b><br>Say numbers in groups. 77 is "double seven". 888 is "triple eight". @ is "at", . is "dot", - is "dash".</div>';
+}
+
+/* ---------- 5 Notes: three tenses, how often, go/play/do ---------- */
+var NOTES=[
+ ["Last Thursday Scarlett ___ to the conversation group.","went",["goes","is going to go"],"Last Thursday is finished. Use the past simple."],
+ ["The library ___ at 9 am on weekdays.","opens",["opened","is going to open"],"Opening times are facts. Use the simple present."],
+ ["Next Monday I ___ aqua fitness.","am going to try",["tried","try"],"Next Monday is a plan. Use be going to."],
+ ["Yesterday we ___ cards with our neighbours.","played",["play","are going to play"],"Yesterday is finished. Use the past simple."],
+ ["I ___ a class last week. It was full.","didn't book",["don't book","didn't booked"],"didn't + the base verb."],
+ ["I ___ to the pool on Mondays. (usually)","usually go",["go usually","usually goes"],"usually goes before the main verb."],
+ ["I ___ yoga at the community centre.","do",["play","go"],"do + classes: do yoga, do tai chi."],
+ ["We ___ tennis on Saturdays.","play",["do","go"],"play + games and ball sports."]
+];
+function notesScreen(){
+ var h='<div class="paper"><h3>📝 My week</h3>';
+ NOTES.forEach(function(n,i){
+  if(i<S.item) h+='<div class="done">'+n[0].replace(" (usually)","").replace("___","<b>"+n[1]+"</b>")+'</div>';
+  else if(i===S.item) h+='<div class="now">'+n[0].replace("___",'<span class="gap"></span>')+'</div>';
+ });
+ return h+'</div><div class="rule"><div><b>Simple present</b>habits, facts, opening times</div><div><b>Past simple</b>yesterday, last week</div><div><b>Be going to</b>plans: next week, tomorrow</div><div><b>go · play · do</b>go swimming, play tennis, do yoga</div></div>';
+}
+
+/* ---------- 6 Health: medical centre ---------- */
+function medNotice(){
+ return '<div class="leaf"><div class="lh" style="background:#b04a5c"><b>HARBOURSIDE MEDICAL CENTRE</b><small>3/180 Military Road, Neutral Bay NSW 2089 · (02) 5550 2277</small></div><div class="lb2">'+
+  '<p><b>Opening hours</b><br>Mon to Fri 8 am to 6 pm · Sat 8:30 am to 12:30 pm · Closed Sundays and public holidays</p>'+
+  '<p><b>Services</b><br>Doctor (GP) appointments. Flu shots and other immunisations. Blood tests on Tuesday and Thursday mornings.</p>'+
+  '<p><b>Booking</b><br>Book online or call reception. Tell us if you need an interpreter. Interpreters are free.</p>'+
+  '<p><b>After hours</b><br>Call our after-hours doctor line on (02) 5550 2299. <b>In an emergency, call 000.</b></p>'+
+  '</div></div><div class="practice">The medical centre is for practice. Its phone numbers reach no one.</div>';
+}
+function bookScreen(){
+ return '<div class="bk"><div class="bkh">🩺 Book an appointment</div>'+
+  '<div class="bkrow">1 · ________ to your account</div><div class="bkrow">2 · ________ your name and phone number</div><div class="bkrow">3 · ________ "Book now"</div></div>'+
+  '<div class="tip"><b>Phrasal verbs</b><br>log in · fill in · click on · sign up · drop in · find out · look up · check out</div>';
+}
+
+/* ---------- 7 Aussie Talk ---------- */
+function gapChat(lines){
+ return function(){
+  var h='<div class="who"><div class="av">S</div><div><b>Scarlett</b><small>Neighbour</small></div></div><div class="thread">';
+  lines.forEach(function(m){ h+='<div class="bub '+(m[0]==="a"?"me":"them")+'">'+m[1].replace("___",'<span class="gap"></span>')+'</div>'; });
+  return h+'</div><div class="tip"><b>Fill the gap</b><br>Choose the best everyday expression.</div>';
+ };
+}
+
+/* ---------- 8 Maps: Crows Nest ---------- */
+function crowsMap(){
+ var B=function(t,l){ return '<div class="mb">'+(l?'<span class="tag">'+l+'</span>':'')+'<span>'+(t||'')+'</span></div>'; };
+ var R='<div class="mr"></div>';
+ var S2=function(n){ return '<div class="ms"><span>'+n+'</span></div>'; };
+ return '<div class="msearch"><span class="tag">🔍</span><b>Crows Nest NSW 2065</b></div>'+
+  '<div class="cmap">'+
+   '<div class="mtop">⬇ Willoughby Road ⬇</div>'+
+   B("Tennis courts","G")+B("")+R+B("Post office","E")+B("")+
+   S2("Falcon St")+
+   B("Medi&shy;cal centre","D")+B("Chemist","H")+R+B("Library","A")+B("Commu&shy;nity centre","B")+
+   S2("Holtermann St")+
+   B("")+B("Café","F")+R+B("")+B("")+
+   B("")+B("Super&shy;market","I")+R+B("Gym","J")+B("")+
+   S2("Hume St")+
+   '<div class="mb pk"><span>Hume Street Park</span></div>'+B("Pool","C")+R+'<div class="mb you"><span>★ You are here</span></div>'+B("")+
+  '</div><div class="practice">The streets and the park are real. The places on this map are for practice. Not to scale.</div>';
+}
+
+/* ---------- 9 Mail ---------- */
+function mailScreen(){
+ return '<div class="mail"><div class="mrow"><b>To:</b> Julia</div><div class="mrow"><b>Subject:</b> Come to the group!</div>'+
+  '<div class="msearch mbody" id="ms"></div></div>'+
+  '<div class="tip"><b>A friendly message</b><br>greeting · what happened · where it is · your plan and a reason · closing · your name<br>The closing and your name go on separate lines.</div>';
+}
+function mailRules(){
+ return '<div class="mail"><div class="mrow"><b>To:</b> Julia</div><div class="mrow"><b>Subject:</b> Come to the group!</div>'+
+  '<div class="mbody2">Hi Julia,<br><br>Last Thursday Scarlett went to a free English conversation group. It\'s at the library on Ben Boyd Road, next to the community centre. I\'m going to go today because I want to practise my speaking. Do you want to come?<br><br>See you soon,<br>Grace</div></div>'+
+  '<div class="tip"><b>Where did you find it?</b><br>on a website, on an app, on a flyer, on a noticeboard · in a newsletter, in the local paper · from a friend, at the front desk</div>';
+}
+
+/* ---------- 10 Library: the conversation group ---------- */
+function groupScreen(line){
+ return function(){
+  return '<div class="room"><div class="board">English Conversation Group 👋<br>Thursdays · 10 am to 12 pm · Free</div></div>'+
+   '<div class="thread" style="margin-top:12px"><div class="who"><div class="av" style="background:#2e6b57">V</div><div><b>Volunteer</b><small>Conversation group</small></div></div>'+
+   '<div class="bub them">'+line+'</div></div>'+
+   '<div class="tip"><b>Speak well</b><br>Choose the answer with the right grammar and the right meaning.</div>';
+ };
+}
+
+/* ===== The apps in story order ===== */
+var PUZ=[
+ { at:"8:31", after:"8:36",
+   mission:"You have a new message. Open <b>Messages</b>.",
+   intro:["It's Thursday morning in Neutral Bay.","You moved here last month. You want to meet new people.","Your neighbour Scarlett sends you a text."],
+   done:"Aqua fitness sounds fun! You have a photo of the pool notice. Check it.",
+   items:[
+    {type:"mc",ctx:chatScreen,q:"What does Grace want to do today?",a:"try aqua fitness at the pool",w:["go to the library group","play a word game"],
+     hint:"Read Grace's first message.",ok:"Yes. Aqua fitness at the pool."},
+    {type:"mc",ctx:chatScreen,q:"When is the conversation group on?",a:"every Thursday, 10 am to 12 pm",w:["every Tuesday, 10 am to 12 pm","every Thursday, 12 pm to 2 pm"],
+     hint:"From ten till twelve. Which day?",ok:"Right. Thursdays, ten till twelve."},
+    {type:"mc",ctx:chatScreen,q:"How did Scarlett feel the first time?",a:"nervous",w:["bored","tired"],
+     hint:"Find the message with 'the first time'.",ok:"Yes. Nervous, but everyone was friendly."},
+    {type:"mc",ctx:chatScreen,q:"Which sentence is true?",a:"Scarlett played a word game.",w:["Scarlett booked a class online.","Scarlett swam in the pool."],
+     hint:"What did they do in the group?",ok:"Right. They talked, then played a word game."},
+    {type:"mc",ctx:chatScreen,q:"Does Grace need to book the group?",a:"No. You just pop in.",w:["Yes. Book online.","Yes. Call the library."],
+     hint:"Read Scarlett's last message.",ok:"Right. No booking. Just pop in."},
+    {type:"mc",ctx:chatScreen,q:"Grace says \"Oh, really?\" to show interest. What does Grace's voice do?",a:"It goes up. ↗",w:["It goes down. ↘","It stays flat. →"],
+     hint:"It's like a question.",ok:"Yes. Oh, really? ↗ goes up."}
+   ]},
+ { at:"8:36", after:"8:40",
+   mission:"Check the pool notice. Open <b>Photos</b>.",
+   intro:["Last week you took a photo of a notice at the pool.","Open the photo.","Check the days and times for aqua fitness."],
+   done:"No aqua fitness today. New plan: the library group with Scarlett! What else is on?",
+   items:[
+    {type:"mc",ctx:poolNotice,q:"Today is Thursday. Can you do aqua fitness today?",a:"No. It's on Monday, Wednesday and Friday.",w:["Yes, at 9 am.","Yes, but you need to book."],
+     hint:"Read Classes. Which days?",ok:"Oh no! Not on Thursdays."},
+    {type:"mc",ctx:poolNotice,q:"How often is aqua fitness on?",a:"three times a week",w:["every day","once a week"],
+     hint:"Count the days.",ok:"Right. Three times a week."},
+    {type:"mc",ctx:poolNotice,q:"Do you need to book aqua fitness?",a:"No. There's no booking.",w:["Yes. Book online.","Yes. Call the centre."],
+     hint:"Read the line about aqua fitness again.",ok:"Right. No booking."},
+    {type:"mc",ctx:poolNotice,q:"Which class needs a booking?",a:"Adult Learn to Swim",w:["Aqua fitness","the indoor pool"],
+     hint:"Look for 'book online'.",ok:"Yes. Book it online."},
+    {type:"mc",ctx:poolNotice,q:"Scarlett wants to swim in the outdoor pool in July. Can Scarlett?",a:"No. It's open from September to April only.",w:["Yes, every day from 6 am.","Yes, but only on weekends."],
+     hint:"Read Opening dates and hours.",ok:"Right. The outdoor pool closes in winter."},
+    {type:"mc",ctx:poolNotice,q:"How much does a pensioner pay to swim?",a:"$5",w:["$8","nothing"],
+     hint:"Pensioners pay the concession price.",ok:"Right. Concession is $5."},
+    {type:"mc",ctx:poolNotice,q:"What's your new plan for today?",a:"I'm going to go to the library group with Scarlett.",w:["I'm going to do aqua fitness at 9 am.","I went to the library group yesterday."],
+     hint:"It's a plan for today. Use be going to.",ok:"Great plan!"}
+   ]},
+ { at:"8:40", after:"8:46",
+   mission:"Find more fun things to do. Open <b>What's On</b>.",
+   intro:["Scarlett tells you about a community events website.","You look it up on your phone.","Find something fun for next week."],
+   done:"You found some great events. Next, practise your words for the group.",
+   items:[
+    {type:"mc",ctx:webScreen,q:"You want to type a word to find an event. Which letter do you tap?",a:"A",w:["B","D"],
+     hint:"Find the search box.",ok:"Right. A is the search box."},
+    {type:"mc",ctx:webScreen,q:"You want to save your place in a class. Which letter do you tap?",a:"E",w:["F","G"],
+     hint:"Which button books a place?",ok:"Yes. E is Book now."},
+    {type:"mc",ctx:webScreen,q:"You want to see the way to the Forsyth Park gates. Which letter do you tap?",a:"G",w:["F","C"],
+     hint:"Which button shows a map?",ok:"Right. G is Get directions."},
+    {type:"mc",ctx:webScreen,q:"Which event is free and needs no booking?",a:"the Walking Group",w:["Tai Chi in the Park","Tech Help for Seniors"],
+     hint:"Look for Free and No booking.",ok:"Yes. The Walking Group."},
+    {type:"mc",ctx:webScreen,q:"When is Tai Chi on?",a:"Saturdays at 7:30 am",w:["Tuesdays at 8 am","Mondays at 2 pm"],
+     hint:"Find Tai Chi in the Park.",ok:"Right. Saturdays at 7:30."},
+    {type:"mc",ctx:webScreen,q:"How long is one Tech Help session?",a:"30 minutes",w:["2 hours","8 weeks"],
+     hint:"Read Tech Help for Seniors.",ok:"Yes. Half an hour."},
+    {type:"mc",ctx:webScreen,q:"Julia asks: \"Where did you find this event?\" Choose the best answer.",a:"I found it on a community website.",w:["I found it in a community website.","I found it at a community website."],
+     hint:"on + a website or an app.",ok:"Right. on a website."}
+   ]},
+ { at:"8:46", after:"8:52",
+   mission:"Practise for the group. Open <b>Voice</b>.",
+   intro:["A volunteer helps people with pronunciation at the group.","Practise some words first.","Tap the best answer each time."],
+   done:"Great practice! Now write some notes about your week.",
+   items:[
+    {type:"mc",ctx:voiceScreen,q:"Which syllable is strong in community?",a:"com · MU · ni · ty",w:["COM · mu · ni · ty","com · mu · NI · ty"],
+     hint:"It's the second syllable.",ok:"Yes. com-MU-ni-ty."},
+    {type:"mc",ctx:voiceScreen,q:"Which syllable is strong in appointment?",a:"ap · POINT · ment",w:["AP · point · ment","ap · point · MENT"],
+     hint:"It's in the middle.",ok:"Right. ap-POINT-ment."},
+    {type:"mc",ctx:voiceScreen,q:"Which syllable is strong in volunteer?",a:"vol · un · TEER",w:["VOL · un · teer","vol · UN · teer"],
+     hint:"It's at the end.",ok:"Yes. vol-un-TEER."},
+    {type:"mc",ctx:voiceScreen,q:"Which syllable is strong in aquatic?",a:"a · QUA · tic",w:["A · qua · tic","a · qua · TIC"],
+     hint:"It's the second syllable.",ok:"Right. a-QUA-tic."},
+    {type:"mc",ctx:voiceScreen,q:"How do you say the phone number (02) 5550 2277?",a:"oh-two, five-five-five-oh, double two, double seven",w:["zero-two, fifty-five fifty, twenty-two seventy-seven","two, five thousand five hundred and fifty, two thousand two hundred and seventy-seven"],
+     hint:"Say numbers in groups. Two the same is double.",ok:"Yes. Double two, double seven."},
+    {type:"mc",ctx:voiceScreen,q:"How do you say hello@bayviewlibrary.org.au?",a:"hello at bayviewlibrary, all one word, dot org dot au",w:["hello dash bayview library, dot org au","hello at bayview, space, library, org, au"],
+     hint:"@ is at. . is dot.",ok:"Right. at, all one word, dot org dot au."},
+    {type:"mc",ctx:voiceScreen,q:"How do you say this sign: Sat 8:30 am to 12:30 pm?",a:"Saturday, eight thirty till twelve thirty",w:["Sat, eight point thirty to twelve point thirty","Saturday, eighty-thirty to twelve-thirty"],
+     hint:"Say the full day name.",ok:"Yes. Saturday, eight thirty till twelve thirty."}
+   ]},
+ { at:"8:52", after:"8:58",
+   mission:"Write about your week. Open <b>Notes</b>.",
+   intro:["You keep a diary in English.","Write about your week.","Choose the right words. Look at the time words."],
+   done:"Your notes look great. Oh! You need a flu shot this month.",
+   items:NOTES.map(function(n){ return {type:"mc",ctx:notesScreen,q:n[0].replace("___","_____"),a:n[1],w:n[2],hint:n[3],ok:n[0].replace(" (usually)","").replace("___",n[1])}; })},
+ { at:"8:58", after:"9:05",
+   mission:"Book your flu shot. Open <b>Health</b>.",
+   intro:["You need a flu shot this month.","There's a medical centre on Military Road.","Read the notice. Then book online."],
+   done:"Booked! Your flu shot is on Saturday at 9 am. Scarlett sends another text.",
+   items:[
+    {type:"mc",ctx:medNotice,q:"Can you see a doctor on Saturday morning?",a:"Yes, from 8:30 am to 12:30 pm.",w:["No. It's closed on Saturdays.","Yes, from 8 am to 6 pm."],
+     hint:"Read Opening hours. Find Sat.",ok:"Right. Saturday, eight thirty till twelve thirty."},
+    {type:"mc",ctx:medNotice,q:"What are two ways to book an appointment?",a:"online, or call reception",w:["online, or send a letter","only at the front desk"],
+     hint:"Read Booking.",ok:"Yes. Online or by phone."},
+    {type:"mc",ctx:medNotice,q:"You want help in your own language. What can you ask for?",a:"an interpreter, for free",w:["a volunteer, for $5","a concession"],
+     hint:"Read Booking again.",ok:"Right. Interpreters are free."},
+    {type:"mc",ctx:medNotice,q:"It's 10 pm. A family member is very sick. It's an emergency. What number do you call?",a:"000",w:["(02) 5550 2277","(02) 5550 2299"],
+     hint:"Emergency means danger now.",ok:"Yes. In an emergency, call 000."},
+    {type:"mc",ctx:medNotice,q:"What is an appointment?",a:"a set time to see a doctor or other worker",w:["a person who helps you speak in your language","an injection that protects you from a sickness"],
+     hint:"You book it.",ok:"Right. A set time to see someone."},
+    {type:"mc",ctx:bookScreen,q:"Step 1: ________ to your account with your email and password.",a:"Log in",w:["Sign up","Drop in"],
+     hint:"Open your account with a password.",ok:"Yes. Log in."},
+    {type:"mc",ctx:bookScreen,q:"Step 2: ________ your name and phone number on the form.",a:"Fill in",w:["Find out","Check out"],
+     hint:"Write in the spaces on a form.",ok:"Right. Fill in the form."},
+    {type:"mc",ctx:bookScreen,q:"Step 3: ________ \"Book now\" to choose a time.",a:"Click on",w:["Look up","Pop in"],
+     hint:"Choose a button on the screen.",ok:"Booked! Click on Book now."}
+   ]},
+ { at:"9:05", after:"9:12",
+   mission:"Scarlett sends more texts. Open <b>Aussie Talk</b>.",
+   intro:["Scarlett sends more texts.","Scarlett uses lots of everyday Australian expressions.","Choose the best expression for each gap."],
+   done:"See you at ten! After the group, Scarlett wants lunch in Crows Nest.",
+   items:[
+    {type:"mc",ctx:gapChat([["s","Did you go to aqua fitness?"],["a","No, it's not on today. I'm going to ___ next Monday."]]),
+     q:"Choose the best expression.",a:"give it a go",w:["a good spot","every now and then"],hint:"It's something new to try.",ok:"Yes. Give it a go means try something new."},
+    {type:"mc",ctx:gapChat([["s","So do you want to come to the group today?"],["a","Yes! ___!"]]),
+     q:"Choose the best expression.",a:"I'm keen",w:["It's packed","It's worth it"],hint:"Grace really wants to go.",ok:"Right. I'm keen means I really want to do it."},
+    {type:"mc",ctx:gapChat([["a","Do I need to book?"],["s","No. Just ___ at ten."]]),
+     q:"Choose the best expression.",a:"pop in",w:["it's worth it","a good spot"],hint:"Go in for a short visit, with no plan.",ok:"Yes. Pop in."},
+    {type:"mc",ctx:gapChat([["s","Come early! Last week ___. There were twenty people!"]]),
+     q:"Choose the best expression.",a:"it was packed",w:["it was a good spot","it was every now and then"],hint:"Twenty people is very crowded.",ok:"Right. Packed means very crowded."},
+    {type:"mc",ctx:gapChat([["s","The café across the road is ___ for a coffee after the group."]]),
+     q:"Choose the best expression.",a:"a good spot",w:["every now and then","give it a go"],hint:"It's a good place.",ok:"Yes. A good spot means a good place."},
+    {type:"mc",ctx:gapChat([["a","Do you go to the library a lot?"],["s","Not a lot. I go ___ to borrow books."]]),
+     q:"Choose the best expression.",a:"every now and then",w:["it's packed","I'm keen"],hint:"Sometimes, but not often.",ok:"Right. Every now and then means sometimes."},
+    {type:"mc",ctx:gapChat([["s","The new gym is $20 a week, but ___. It has a pool too!"]]),
+     q:"Choose the best expression.",a:"it's worth it",w:["pop in","give it a go"],hint:"It's good enough for the money.",ok:"Yes. It's worth it."},
+    {type:"mc",ctx:gapChat([["a","Is the community garden any good?"],["s","I don't know. Let's go and ___ on Saturday."]]),
+     q:"Choose the best expression.",a:"suss it out",w:["I'm keen","every now and then"],hint:"Go and look, to see if it's good.",ok:"Right. Suss it out."}
+   ]},
+ { at:"9:12", after:"9:20",
+   mission:"Plan lunch in Crows Nest. Open <b>Maps</b>.",
+   intro:["After the group, Scarlett wants lunch in Crows Nest.","You look up Crows Nest on your map app.","Where is everything? Look at the letters."],
+   done:"Now you know the way around Crows Nest. Next, invite your friend Julia to the group.",
+   items:[
+    {type:"mc",ctx:crowsMap,q:"The library is ________ the community centre.",a:"next to",w:["opposite","between"],hint:"Find A and B.",ok:"Right. They're side by side."},
+    {type:"mc",ctx:crowsMap,q:"The café is ________ Willoughby Road and Holtermann Street.",a:"on the corner of",w:["next to","between"],hint:"Find F. Two roads meet there.",ok:"Yes. On the corner of two roads."},
+    {type:"mc",ctx:crowsMap,q:"The gym is ________ the supermarket. You need to cross Willoughby Road.",a:"opposite",w:["next to","behind"],hint:"It's on the other side of the road.",ok:"Right. Opposite means on the other side of the road."},
+    {type:"mc",ctx:crowsMap,q:"The chemist is ________ the medical centre and Willoughby Road.",a:"between",w:["opposite","on the corner of"],hint:"Find H. What is on each side?",ok:"Yes. Between D and the road."},
+    {type:"mc",ctx:crowsMap,q:"The pool is ________ Hume Street Park.",a:"next to",w:["opposite","on"],hint:"Find C. Look beside it.",ok:"Right. Next to the park."},
+    {type:"mc",ctx:crowsMap,q:"The tennis courts are ________ Falcon Street.",a:"on",w:["in","at"],hint:"Use this word with a street.",ok:"Yes. on + street."},
+    {type:"mc",ctx:crowsMap,q:"The café is ________ Crows Nest.",a:"in",w:["on","at"],hint:"Use this word with a suburb.",ok:"Right. in + suburb."},
+    {type:"mc",ctx:crowsMap,q:"\"It's opposite the supermarket, on the other side of Willoughby Road.\" Which place is it?",a:"J",w:["I","F"],hint:"Find the supermarket, then cross the road.",ok:"Yes. J is the gym."}
+   ]},
+ { at:"9:20", after:"9:30",
+   mission:"Invite Julia to the group. Open <b>Mail</b>.",
+   intro:["You want to invite your friend Julia to the group.","Write a message in the Mail app.","Put the parts in the right order. Watch out for traps!"],
+   done:"Message sent! It's time to walk to the library.",
+   items:[
+    {type:"order",screen:mailScreen,icon:"",ph:"Tap the parts below",btn:"✉️ Send",mail:true,
+     q:"Tap the parts in the right order. Make the message. Two parts have a mistake. Don't use them.",
+     tiles:["Hi Julia,","Last Thursday Scarlett went to a free English conversation group.","It's at the library on Ben Boyd Road, next to the community centre.","I'm going to go today because I want to practise my speaking. Do you want to come?","See you soon,","Grace"],
+     extra:["See you soon, Grace","I'm going to go today, because I want to practise my speaking."],
+     hint:"greeting, what happened, where, plan and reason, closing, name. No comma before because. The closing and the name go on separate lines.",
+     ok:"Sent! A clear, friendly message."},
+    {type:"mc",ctx:mailRules,q:"Look at the end of the message. Where does the name go?",a:"on its own line, under the closing",w:["on the same line as the closing","at the top, before Hi"],
+     hint:"Look at See you soon, and Grace.",ok:"Right. The name goes on its own line."},
+    {type:"mc",ctx:mailRules,q:"Which sentence is correct?",a:"I like it because the people are friendly.",w:["I like it, because the people are friendly.","I like it because, the people are friendly."],
+     hint:"No comma before or after because.",ok:"Yes. No comma with because."},
+    {type:"mc",ctx:mailRules,q:"Julia replies: \"How did you find out about the group?\" Choose the best answer.",a:"My neighbour told me about it.",w:["My neighbour told me on it.","I found it in a website."],
+     hint:"told me about it. on a website.",ok:"Right. My neighbour told me about it."},
+    {type:"mc",ctx:mailRules,q:"I saw a flyer ________ the noticeboard at the supermarket.",a:"on",w:["in","at"],hint:"on + a noticeboard, a flyer, a website.",ok:"Yes. on the noticeboard."},
+    {type:"mc",ctx:mailRules,q:"I read about the new pool hours ________ the Bayview News.",a:"in",w:["on","at"],hint:"in + a newsletter or a local paper.",ok:"Right. in the local paper."}
+   ]},
+ { at:"10:00", after:"10:15",
+   mission:"It's 10 am. Open <b>Library</b> and join the group.",
+   intro:["It's 10 am. You're at the library with Scarlett.","The group is packed!","A volunteer asks you some questions. Choose the best answer."],
+   done:"You're part of the group now!",
+   items:[
+    {type:"mc",ctx:groupScreen("Welcome, Grace! Where do you live?"),q:"Choose the best answer.",a:"I live in Neutral Bay, near Military Road.",w:["I live on Neutral Bay, in Military Road.","I lived in Neutral Bay next week."],
+     hint:"in + suburb. Use the simple present.",ok:"Great answer!"},
+    {type:"mc",ctx:groupScreen("Is there a place you like near your home?"),q:"Choose the best answer.",a:"Yes. I like the pool on Ben Boyd Road, next to Forsyth Park.",w:["Yes. I like the pool in Ben Boyd Road, between Forsyth Park.","Yes. I like the pool at Ben Boyd Road, opposite of Forsyth Park."],
+     hint:"on + street. next to + one place.",ok:"Yes. Clear and correct."},
+    {type:"mc",ctx:groupScreen("How often do you go there?"),q:"Choose the best answer.",a:"About twice a month.",w:["Last year, in March.","From 6 am to 7 pm."],
+     hint:"How often is about times a week or month.",ok:"Right. Twice a month."},
+    {type:"mc",ctx:groupScreen("When did you first go there?"),q:"Choose the best answer.",a:"Last month, after I moved here.",w:["Next month.","Every Saturday."],
+     hint:"When did is about the past.",ok:"Yes. Last month."},
+    {type:"mc",ctx:groupScreen("What are you going to do there next week?"),q:"Choose the best answer.",a:"I'm going to try aqua fitness on Monday.",w:["I tried aqua fitness on Monday.","I try aqua fitness next Monday."],
+     hint:"It's a plan. Use be going to.",ok:"Great. A plan with be going to."},
+    {type:"mc",ctx:groupScreen("Why do you like the pool?"),q:"Choose the best answer.",a:"Because the staff are friendly and it's cheap.",w:["So the staff are friendly and it's cheap.","But the staff are friendly and it's cheap."],
+     hint:"Which word gives a reason?",ok:"Yes. because gives a reason."},
+    {type:"mc",ctx:groupScreen("I joined the walking group last month."),q:"Show interest. What do you say?",a:"Oh, really? Do you like it? ↗",w:["OK. ↘","The walking group. →"],
+     hint:"React, then ask a question.",ok:"Perfect. The volunteer smiles at you!"}
+   ]}
+];
+
+/* ===================== 2. STATE AND STORAGE ===================== */
+var KEY="vu23562_graces_phone_v1";
+var SIZES=[28,34,42];
+function fresh(){ return {pass:false,done:0,app:-1,curApp:-1,item:0,introOK:false,opt:{},wrong:{},score:{},fs:0,tipDone:false,prog:{}}; }
+var S=fresh();
+function storageOK(){ try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); return true; }catch(e){ return false; } }
+var CAN=storageOK();
+function save(){ if(!CAN) return; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+function load(){ if(!CAN) return; try{ var t=localStorage.getItem(KEY); if(t){ var o=JSON.parse(t); S=Object.assign(fresh(),o); } }catch(e){} }
+load();
+setInterval(save,1500);
+window.addEventListener("pagehide",save);
+document.addEventListener("visibilitychange",function(){ if(document.hidden) save(); });
+
+/* ===================== 3. HELPERS ===================== */
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function range(n){ var r=[]; for(var i=0;i<n;i++) r.push(i); return r; }
+function $(id){ return document.getElementById(id); }
+var scr=$("scr"), sbar=$("sbar");
+function applySize(){ document.documentElement.style.setProperty("--fs",SIZES[S.fs]+"px"); }
+applySize();
+function clockNow(){
+ if(S.app>=0 && S.app<PUZ.length) return PUZ[S.app].at;
+ if(S.curApp>=0 && S.curApp===S.done && S.curApp<PUZ.length) return PUZ[S.curApp].at;
+ if(S.done>=APPS.length) return "10:15";
+ if(S.done>0) return PUZ[S.done-1].after;
+ return "8:30";
+}
+function setBar(dark){ sbar.className="sbar"+(dark?" dark":""); $("clock").textContent=clockNow(); }
+function toast(t){ var d=document.createElement("div"); d.className="toast"; d.textContent=t; $("phone").appendChild(d); setTimeout(function(){ d.remove(); },2200); }
+function rainLayer(){
+ return '<div class="rain" aria-hidden="true"><div class="sun"></div></div>';
+}
+function grad(c){ var p=c.split(","); return "linear-gradient(145deg,"+p[0]+","+p[1]+")"; }
+
+/* ===================== 4. LOCK SCREEN ===================== */
+var pin="", pinWrong=0;
+function renderLock(){
+ setBar(false);
+ scr.className="wall";
+ var keys=[1,2,3,4,5,6,7,8,9,"",0,"⌫"];
+ scr.innerHTML=rainLayer()+'<div class="lock">'+
+  '<div class="date">Thursday 15 October · ☀️ 22°</div>'+
+  '<div class="big">8:30</div>'+
+  '<div class="notif"><b>💬 Messages · Scarlett</b>Morning, Grace! Where are you off to today?</div>'+
+  '<div class="story">You are <b>Grace</b>. You live in Neutral Bay. You moved here last month. Today is Thursday. You want to try something new and meet new people.<br><br>🔒 Your passcode is your <b>postcode</b>. You live in Neutral Bay.</div>'+
+  '<div class="dots" id="dots">'+[0,1,2,3].map(function(i){return '<span class="'+(i<pin.length?"on":"")+'"></span>';}).join("")+'</div>'+
+  '<div class="pin-hint" id="ph"></div>'+
+  '<div class="pad">'+keys.map(function(k){ return k===""?'<button class="blank" tabindex="-1"></button>':'<button data-act="key" data-k="'+k+'">'+k+'</button>'; }).join("")+'</div>'+
+ '</div>';
+}
+function pressKey(k){
+ if(k==="⌫"){ pin=pin.slice(0,-1); }
+ else if(pin.length<4){ pin+=k; }
+ var d=$("dots").children; for(var i=0;i<4;i++) d[i].className=i<pin.length?"on":"";
+ if(pin.length===4){
+  if(pin==="2089"){ S.pass=true; save(); setTimeout(renderHome,250); }
+  else{
+   pinWrong++; $("dots").classList.remove("shake"); void $("dots").offsetWidth; $("dots").classList.add("shake");
+   $("ph").textContent= pin==="2060"?"That's North Sydney. Try again.": pin==="2065"?"That's Crows Nest. Try again.": pin==="2062"?"That's Cammeray. Try again.": pinWrong>=2?"Hint: Neutral Bay NSW 20_9":"Not quite. Try again.";
+   pin=""; setTimeout(function(){ var d=$("dots").children; for(var i=0;i<4;i++) d[i].className=""; },300);
+  }
+ }
+}
+
+/* ===================== 5. HOME SCREEN ===================== */
+var resetArm=false, WELCOME=false;
+function welcomeHTML(){
+ if(!WELCOME) return '';
+ WELCOME=false;
+ var t = S.done>=APPS.length ? 'All the apps are open. Play an app again, or see your result.' :
+   'You have '+S.done+' of '+APPS.length+' apps unlocked.'+
+   ((S.curApp>=0 && S.curApp<PUZ.length && S.introOK) ? ' Keep going in <b>'+APPS[S.curApp].n+'</b>. You\'re on question '+(S.item+1)+' of '+PUZ[S.curApp].items.length+'.' : ' Keep going!');
+ return '<div class="wb" id="wb"><div class="wbt">👋 WELCOME BACK!</div><div>'+t+'</div><button data-act="wbx">OK</button></div>';
+}
+var IOS=/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+var STANDALONE=(window.navigator.standalone===true) || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+function tipHTML(){
+ if(!IOS || STANDALONE || S.tipDone) return '';
+ return '<div class="wb tipb" id="tipb"><div class="wbt">📱 PLAY FULL SCREEN</div><div>Tap the Share button <b>⬆️</b>. Then tap <b>Add to Home Screen</b>. Open the game from your home screen.</div><button data-act="tipx">OK</button></div>';
+}
+function renderHome(){
+ S.app=-1; save();
+ setBar(false);
+ scr.className="wall";
+ var n=S.done, total=APPS.length;
+ var mission = (S.curApp===n && n<PUZ.length && S.introOK) ? 'Keep going in <b>'+APPS[n].n+'</b>. You\'re on question '+(S.item+1)+' of '+PUZ[n].items.length+'.' : n<PUZ.length ? PUZ[n].mission : '🎉 All apps unlocked! You\'re at the group.<button class="go och" data-act="win">See my result</button>';
+ var h=rainLayer()+'<div class="home">'+
+  welcomeHTML()+tipHTML()+
+  '<div class="prog"><div class="row"><span>🔓 Apps unlocked: '+n+'/'+total+'</span><span class="chip">Group 10:00</span></div><div class="bar"><i style="width:'+(n/total*100)+'%"></i></div></div>'+
+  (mission?'<div class="mission">'+mission+'</div>':'')+
+  '<div class="grid">';
+ APPS.forEach(function(a,i){
+  var done=i<n, next=i===n, locked=i>n || (next && i>=PUZ.length);
+  var cls="app"+(locked?" locked":"")+(next&&!locked?" next":"");
+  var pg2 = i===S.curApp ? {item:S.item,introOK:S.introOK} : (S.prog && S.prog[i]);
+  var sc = (pg2 && pg2.introOK) ? '<span class="sc keep">Keep going ('+pg2.item+' done)</span>' : done && S.score[i]!=null ? '<span class="sc">'+S.score[i]+'/'+PUZ[i].items.length+'</span>' : '';
+  h+='<button class="'+cls+'" data-act="open" data-i="'+i+'" aria-label="'+a.n+(locked?" (locked)":"")+'">'+
+   '<span class="ic" style="background:'+grad(a.c)+'">'+a.i+(locked?'<span class="lockb">🔒</span>':'')+(done?'<span class="tick">✓</span>':'')+'</span>'+
+   '<span class="lb">'+a.n+'</span>'+sc+'</button>';
+ });
+ h+='</div>'+(CAN?'':'<div class="warn">This phone can\'t save your progress here. You can still play.</div>')+
+  '<div class="reset"><button data-act="reset" id="rb">↺ Start the whole game again</button></div></div>';
+ scr.innerHTML=h;
+ resetArm=false;
+}
+function openApp(i){
+ if(i>S.done || i>=PUZ.length){
+  toast(i>=PUZ.length && i===S.done ? "This app opens in the next part." : "🔒 Locked. Unlock "+APPS[S.done].n+" first.");
+  return;
+ }
+ if(S.curApp!==i){
+  if(S.curApp>=0 && (S.item>0 || S.introOK)) S.prog[S.curApp]={item:S.item,introOK:S.introOK};
+  S.curApp=i;
+  if(S.prog[i]){ S.item=S.prog[i].item; S.introOK=S.prog[i].introOK; delete S.prog[i]; }
+  else { S.item=0; S.introOK=false; clearApp(i); }
+ }
+ S.app=i;
+ save(); renderApp();
+}
+function clearApp(i){
+ Object.keys(S.opt).forEach(function(k){ if(k.indexOf(i+"-")===0) delete S.opt[k]; });
+ Object.keys(S.wrong).forEach(function(k){ if(k.indexOf(i+"-")===0) delete S.wrong[k]; });
+}
+
+/* ===================== 6. APP SCREEN ===================== */
+var placed=[], answered=false;
+function renderApp(){
+ var a=APPS[S.app], p=PUZ[S.app];
+ setBar(false);
+ scr.className="";
+ scr.style.background=grad(a.c);
+ var top='<div class="appbar"><button class="back" data-act="home">‹ Home</button><h1>'+a.i+' '+a.n+'</h1></div>';
+ if(!S.introOK){
+  scr.innerHTML=top+'<div class="ctx"><div class="intro"><div class="when">🕘 '+p.at+' am</div>'+p.intro.map(function(t){return '<p>'+t+'</p>';}).join("")+'</div></div>'+
+   '<div class="qp qp-start"><button class="go och" data-act="start">Start ›</button></div>';
+  return;
+ }
+ var it=p.items[S.item], key=S.app+"-"+S.item;
+ answered=false;
+ var head='<div class="qnum">Question '+(S.item+1)+' of '+p.items.length+'</div><div class="q">'+it.q+'</div>';
+ if(it.type==="mc"){
+  var base=[it.a].concat(it.w);
+  if(!S.opt[key]) S.opt[key]=shuffle(range(base.length));
+  var ord=S.opt[key];
+  scr.innerHTML=top+'<div class="ctx" id="ctx">'+(it.ctx?it.ctx():'')+'</div>'+
+   '<div class="qp">'+head+'<div class="opts">'+ord.map(function(b,d){ return '<button class="opt" data-act="mc" data-d="'+d+'">'+base[b]+'</button>'; }).join("")+'</div><div class="fb" id="fb"></div><div id="nx"></div></div>';
+ } else if(it.type==="order"){
+  var all=it.tiles.concat(it.extra);
+  if(!S.opt[key]) S.opt[key]=shuffle(range(all.length));
+  placed=[];
+  scr.innerHTML=top+'<div class="ctx" id="ctx">'+(it.screen?it.screen():'<div class="msearch" id="ms"></div>')+'</div>'+
+   '<div class="qp">'+head+'<div class="tray'+(it.mail?' long':'')+'" id="tray"></div>'+
+   '<div class="small-btns"><button data-act="undo">⌫ Undo</button><button data-act="search">'+(it.btn||'🔍 Search')+'</button></div>'+
+   '<div class="fb" id="fb"></div><div id="nx"></div></div>';
+  drawOrder();
+ }
+}
+function drawOrder(){
+ var it=PUZ[S.app].items[S.item], key=S.app+"-"+S.item, all=it.tiles.concat(it.extra);
+ $("ms").innerHTML=(it.icon!=null?it.icon:'🔍 ')+(placed.length?placed.map(function(b){return '<span class="pt">'+all[b]+'</span>';}).join(""):'<span class="ph">'+(it.ph||'Search here')+'</span>')+'<span class="cur"></span>'; var msEl=$("ms"); if(msEl && msEl.scrollIntoView) msEl.scrollIntoView({block:"end"});
+ $("tray").innerHTML=S.opt[key].map(function(b){ return '<button class="tile'+(placed.indexOf(b)>=0?' used':'')+'" data-act="tile" data-b="'+b+'">'+all[b]+'</button>'; }).join("");
+}
+function markWrong(key){ S.wrong[key]=true; save(); }
+function showNext(msg){
+ var fb=$("fb"); fb.className="fb ok"; fb.textContent="✓ "+msg;
+ var last=S.item===PUZ[S.app].items.length-1;
+ $("nx").innerHTML='<button class="go" data-act="next">'+(last?"Unlock the app 🔓":"Next ›")+'</button>';
+ var qp=document.querySelector(".qp"); if(qp) qp.scrollTop=qp.scrollHeight;
+}
+function answerMC(d,btn){
+ if(answered) return;
+ var it=PUZ[S.app].items[S.item], key=S.app+"-"+S.item, b=S.opt[key][d];
+ if(b===0){
+  answered=true; btn.classList.add("right");
+  document.querySelectorAll(".opt").forEach(function(o){ o.disabled=true; });
+  showNext(it.ok);
+ } else {
+  btn.classList.add("wrong"); btn.disabled=true; markWrong(key);
+  var fb=$("fb"); fb.className="fb no"; fb.textContent="Not quite. "+it.hint;
+ }
+}
+function tapTile(b){
+ if(answered) return;
+ if(placed.indexOf(b)<0){ placed.push(b); drawOrder(); }
+}
+function checkOrder(){
+ if(answered) return;
+ var it=PUZ[S.app].items[S.item], key=S.app+"-"+S.item, fb=$("fb");
+ var good=placed.length===it.tiles.length && placed.every(function(b,i){ return b===i; });
+ if(good){ answered=true; showNext(it.ok); }
+ else{
+  markWrong(key); fb.className="fb no";
+  fb.textContent=(placed.length<it.tiles.length?"The address isn't finished. ":"Not quite. ")+it.hint;
+  var ms=$("ms"); ms.style.animation="none"; void ms.offsetWidth; ms.style.animation="shake .4s";
+ }
+}
+function nextItem(){
+ var p=PUZ[S.app];
+ if(S.item<p.items.length-1){ S.item++; save(); renderApp(); var c=$("ctx"); if(c) c.scrollTop=0; return; }
+ /* app finished */
+ var ai=S.app, firstTry=0;
+ for(var i=0;i<p.items.length;i++) if(!S.wrong[ai+"-"+i]) firstTry++;
+ S.score[ai]=Math.max(S.score[ai]||0,firstTry);
+ var isNew = ai===S.done;
+ if(isNew) S.done++;
+ S.app=-1; S.curApp=-1; save();
+ if(isNew && S.done===APPS.length){ renderWin(); return; }
+ setBar(false);
+ var ov=document.createElement("div"); ov.className="ov";
+ ov.innerHTML='<div class="ovc"><div class="bigi">🔓</div><h2>'+APPS[ai].n+' unlocked!</h2>'+
+  '<p><b>Apps unlocked: '+S.done+'/'+APPS.length+'</b></p>'+
+  '<p>Right first time: '+firstTry+' out of '+p.items.length+'</p>'+
+  '<p>'+p.done+'</p><p>🕘 Now it\'s '+p.after+' am.</p>'+
+  '<button class="go" data-act="home">Go to the home screen</button></div>';
+ $("phone").appendChild(ov);
+}
+
+function renderWin(){
+ S.app=-1; save();
+ $("clock").textContent="10:15"; sbar.className="sbar";
+ scr.className="wall"; scr.style.background="";
+ var cols=["#d4a12a","#c8643b","#5cc77a","#8a9fc8","#fff","#9a6aac"], c='<div class="conf" aria-hidden="true">';
+ for(var i=0;i<60;i++) c+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;background:'+cols[i%cols.length]+';animation-duration:'+(2.2+Math.random()*2.5).toFixed(2)+'s;animation-delay:'+(-Math.random()*4).toFixed(2)+'s"></i>';
+ c+='</div>';
+ var tot=0, max=0, rows='';
+ PUZ.forEach(function(p,i){
+  var sc=S.score[i]||0, n=p.items.length; tot+=sc; max+=n;
+  var st=sc===n?"★★★":sc>=n-2?"★★☆":"★☆☆";
+  rows+='<div class="srow"><span>'+APPS[i].i+' '+APPS[i].n+'</span><span><span class="stars">'+st+'</span> '+sc+'/'+n+'</span></div>';
+ });
+ var pc=tot/max, msg = pc>=0.9?"Amazing work! You're a real local now.": pc>=0.7?"Great job! You know your way around.":"Good effort! Play again to beat your score.";
+ scr.innerHTML=c+'<div class="win"><div class="trophy">📚</div><h2>You found your place!</h2>'+
+  '<div style="font-size:.85rem">It\'s 10:15. You\'re at the conversation group.<br>Scarlett introduces you to everyone. 👋</div>'+
+  '<div class="card2"><div class="total">Right first time: '+tot+' out of '+max+'</div><p style="text-align:center;margin:6px 0 10px;font-size:.8rem">'+msg+'</p>'+rows+'</div>'+
+  '<div class="card2"><b>Today you can:</b><br>✓ use everyday expressions about going out<br>✓ say service words, hours, phone numbers and emails<br>✓ use the simple present, past simple and be going to<br>✓ say where a place is with prepositions<br>✓ read notices and a community website<br>✓ say where you found information<br>✓ write a message and answer questions about a place</div>'+
+  '<button class="go och" data-act="home" style="margin-top:14px">Back to the home screen</button>'+
+  '<div class="reset"><button data-act="reset" id="rb">↺ Play again from the start</button></div></div>';
+ resetArm=false;
+}
+
+function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement; }
+function canFS(){ var d=document.documentElement; return !!(d.requestFullscreen || d.webkitRequestFullscreen) && !/iPhone|iPod/.test(navigator.userAgent); }
+function toggleFS(){
+ var d=document.documentElement;
+ try{
+  if(fsEl()){ (document.exitFullscreen||document.webkitExitFullscreen).call(document); return; }
+  var r=(d.requestFullscreen||d.webkitRequestFullscreen).call(d);
+  if(r && r.then) r.then(function(){ try{ screen.orientation.lock("portrait").catch(function(){}); }catch(e){} }).catch(function(){ toast("Full screen is not available here."); });
+ }catch(e){ toast("Full screen is not available here."); }
+}
+if(canFS() && !STANDALONE) $("fsb").hidden=false;
+
+/* ===================== 7. EVENTS ===================== */
+var lastDraw=0;
+new MutationObserver(function(){ lastDraw=Date.now(); }).observe(document.getElementById("scr"),{childList:true});
+document.addEventListener("click",function(e){
+ var t=e.target.closest("[data-act]"); if(!t) return;
+ if(Date.now()-lastDraw<300 && /^(mc|tile|next|search)$/.test(t.getAttribute("data-act"))) return;
+ var act=t.getAttribute("data-act");
+ if(act==="size"){ S.fs=(S.fs+1)%SIZES.length; applySize(); save(); return; }
+ if(act==="key"){ pressKey(t.getAttribute("data-k")); return; }
+ if(act==="open"){ openApp(+t.getAttribute("data-i")); return; }
+ if(act==="home"){ var ov=document.querySelector(".ov"); if(ov) ov.remove(); scr.style.background=""; renderHome(); return; }
+ if(act==="start"){ S.introOK=true; save(); renderApp(); return; }
+ if(act==="mc"){ answerMC(+t.getAttribute("data-d"),t); return; }
+ if(act==="tile"){ tapTile(+t.getAttribute("data-b")); return; }
+ if(act==="undo"){ if(!answered){ placed.pop(); drawOrder(); $("fb").textContent=""; } return; }
+ if(act==="search"){ checkOrder(); return; }
+ if(act==="next"){ nextItem(); return; }
+ if(act==="win"){ renderWin(); return; }
+ if(act==="wbx"){ var w=$("wb"); if(w) w.remove(); return; }
+ if(act==="tipx"){ S.tipDone=true; save(); var tb=$("tipb"); if(tb) tb.remove(); return; }
+ if(act==="fs"){ toggleFS(); return; }
+ if(act==="reset"){
+  if(!resetArm){ resetArm=true; t.textContent="Tap again to start again"; setTimeout(function(){ resetArm=false; var r=$("rb"); if(r) r.textContent="↺ Start the whole game again"; },3000); return; }
+  var fs=S.fs; S=fresh(); S.fs=fs; save(); pin=""; pinWrong=0; SEEN_CHAT=false; renderLock(); return;
+ }
+});
+
+/* ===================== 8. START ===================== */
+if(S.app>=0 && S.curApp<0) S.curApp=S.app;   /* older saves */
+if(!S.prog) S.prog={};
+S.app=-1;
+WELCOME = S.pass && (S.done>0 || S.curApp>=0);
+if(!S.pass) renderLock(); else renderHome();
+})();
+</script>
+</body>
+</html>
